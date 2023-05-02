@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from games.player import Player
 from games.state import State
-
+from games.connect4.board import Piece,PieceSet
 
 class GameSimulator(ABC):
 
@@ -97,7 +97,7 @@ class GameSimulator(ABC):
     def run_simulation(self):
         state = self.init_game()
         players = self.get_player_positions()
-
+        
         # notify players a new game is starting
         for pos in range(0, len(players)):
             players[pos].set_current_pos(pos)

@@ -12,7 +12,7 @@ class RandomConnect4Player(Connect4Player):
         super().__init__(name)
 
     def get_action(self, state: Connect4State):
-        return Connect4Action(randint(0, state.get_num_cols()))
+        return Connect4Action(randint(0, state.get_num_cols()),randint(0, state.get_num_rows()))
 
     def event_action(self, pos: int, action, new_state: State):
         # ignore

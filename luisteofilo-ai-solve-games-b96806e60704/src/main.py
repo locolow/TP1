@@ -24,14 +24,14 @@ def run_simulation(desc: str, simulator: GameSimulator, iterations: int):
 
 
 def main():
-    print("ESTG IA Games Simulator")
+    print("ESTG IA TP1")
 
     num_iterations = 1
 
     c4_simulations = [
         
         {
-            "name": "Connect4 - Human VS Random",
+            "name": "LYNGK - Human VS Random",
             "player1": HumanConnect4Player("Human"),
             "player2": RandomConnect4Player("Random")
         },

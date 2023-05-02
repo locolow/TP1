@@ -13,7 +13,7 @@ class HumanConnect4Player(Connect4Player):
         while True:
             # noinspection PyBroadException
             try:
-                return Connect4Action(int(input(f"Player {state.get_acting_player()}, choose a column: ")))
+                return Connect4Action(int(input(f"Player {state.get_acting_player()}, choose a column: ")),int(input(f"Player {state.get_acting_player()}, choose a row: ")))
             except Exception:
                 continue
 

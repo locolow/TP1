@@ -1,6 +1,7 @@
 from games.connect4.player import Connect4Player
 from games.connect4.state import Connect4State
 from games.game_simulator import GameSimulator
+import random
 
 
 class Connect4Simulator(GameSimulator):

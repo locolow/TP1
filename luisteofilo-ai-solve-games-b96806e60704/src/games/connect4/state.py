@@ -2,18 +2,34 @@ from typing import Optional
 
 from games.connect4.action import Connect4Action
 from games.connect4.result import Connect4Result
+from games.connect4.board import Piece,PieceSet
 from games.state import State
 import random
 
+
 class Connect4State(State):
-    EMPTY_CELL = -1
-    INVALID_CELL = 0
-    #BLUE = 'B'
-    #BLACK = 'BK'
-    #GREEN = 'G'
-    #RED = 'R'
-    #WHITE = 'W'
-    #SPECIAL = 'S'
+    def my_shuffle(array):
+        random.shuffle(array)
+        return array
+
+    INVALID_CELL = -1
+    EMPTY_CELL = 0
+    PLAYED_CELL= -2
+    BLUE = 1
+    BLACK = 2
+    GREEN = 3
+    RED = 4
+    WHITE = 6
+    SPECIAL = 7
+    NORMAL_PIECES = [
+            Piece('BL'), Piece('BL'), Piece('BL'), Piece('BL'), Piece('BL'), Piece('BL'), Piece('BL'), Piece('BL'),
+            Piece('BK'), Piece('BK'), Piece('BK'), Piece('BK'), Piece('BK'), Piece('BK'), Piece('BK'), Piece('BK'),
+            Piece('GR'), Piece('GR'), Piece('GR'), Piece('GR'), Piece('GR'), Piece('GR'), Piece('GR'), Piece('GR'),
+            Piece('RE'), Piece('RE'), Piece('RE'), Piece('RE'), Piece('RE'), Piece('RE'), Piece('RE'), Piece('RE'),
+            Piece('WH'), Piece('WH'), Piece('WH'), Piece('WH'), Piece('WH'), Piece('WH'), Piece('WH'), Piece('WH'),
+            Piece('SP'), Piece('SP'), Piece('SP')
+        ]
+    my_shuffle(NORMAL_PIECES)
 
     def __init__(self):
         super().__init__()
@@ -28,22 +44,8 @@ class Connect4State(State):
         """
         IC = Connect4State.INVALID_CELL
         EC = Connect4State.EMPTY_CELL
-
-        3
-        2
-        3
-        4
-        3
-        4
-        5
-        4
-        3
-        4
-        3
-        2
-        3
-            
-
+    
+        
 
         self.__grid =[ 
             [IC, IC, EC, IC, EC, IC, EC, IC, IC],
@@ -60,10 +62,9 @@ class Connect4State(State):
             [IC, IC, IC, EC, IC, EC, IC, IC, IC],
             [IC, IC, EC, IC, EC, IC, EC, IC, IC]
         ]
-        #self.__grid = [[Connect4State.EMPTY_CELL for _i in range(self.__num_cols)] for _j in range(self.__num_rows)]
-        
        
-        
+        self.__pieces = Connect4State.NORMAL_PIECES
+
         """
         counts the number of turns in the current game
         """
@@ -79,7 +80,6 @@ class Connect4State(State):
         """
         self.__has_winner = False
 
-    
 
     def __check_winner(self, player):
         # check for 3 across
@@ -134,30 +134,44 @@ class Connect4State(State):
     #            self.__grid[row][col] = color
     #            counts[color] += 1
 
+
+
     def get_num_players(self):
         return 2
 
     def validate_action(self, action: Connect4Action) -> bool:
         col = action.get_col()
+        row = action.get_row()
 
         # valid column
         if col < 0 or col >= self.__num_cols:
+            print("maior que col")
+            
+            return False
+
+        if row < 0 or row >= self.__num_rows:
+            print("maior que row")
             return False
 
         # full column
-        if self.__grid[0][col] != Connect4State.EMPTY_CELL:
+        if self.__grid[row][col] != Connect4State.EMPTY_CELL:
+            print("not an empty cell")
+            print (self.__grid[row][col])
             return False
-
+        #if self.__grid[0][row] != Connect4State.EMPTY_CELL:
+        #    print("ta full row")
+        #    return False
+        
         return True
 
     def update(self, action: Connect4Action):
-    #    col = action.get_col()
+        col = action.get_col()
+        row = action.get_row()
 
         # drop the checker
-    #    for row in range(self.__num_rows - 1, -1, -1):
-    #        if self.__grid[row][col] < 0:
-    #            self.__grid[row][col] = self.__acting_player
-    #            break
+        #if self.__grid[row][col] != -1:    
+        #    self.__grid[row][col] = -2
+        
 
         # determine if there is a winner
     #    self.__has_winner = self.__check_winner(self.__acting_player)
@@ -169,11 +183,27 @@ class Connect4State(State):
         
     def __display_cell(self, row, col):
         piece = self.__grid[row][col]
-        space = ' '
-        if piece == -1:
-            print(".", end="")
         if piece == 0:
-            print('_', end="")    
+            print(self.__pieces.pop(), end="")
+            
+            
+        elif piece == -1:
+            print(' ', end="")       
+        elif piece == -2:
+            print('O', end="")
+
+                            #DISPLAY CELL COM CORES
+    #def __display_cell(self, row, col):
+    #    piece = self.__grid[row][col]
+    #    if piece == 0:
+    #        # define a list of your own color codes
+    #        color_palette = ["\033[97m", "\033[92m", "\033[91m", "\033[95m", "\033[30m", "\033[94m"]
+    #        # select a random color code from the color palette
+    #        random_color = random.choice(color_palette)
+    #        # print the "." character in the random color
+    #        print(f"{random_color}.\033[0m", end="")
+    #    elif piece == -1:
+    #        print(' ', end="")
 
     def __display_numbers(self):
         for col in range(0, self.__num_cols):
@@ -190,12 +220,13 @@ class Connect4State(State):
     def display(self):
         for row in range(0, self.__num_rows):
             for col in range(0, self.__num_cols):
+                
                 self.__display_cell(row,col)
                 print('', end="")
-            if row < 10:
-                print(' ', row)
-            else:    
-                print("",row)    
+            print(" ",row)     
+            
+            print(" ")
+        print("")           
 
     def __is_full(self):
         return self.__turns_count > (self.__num_cols * self.__num_rows)
@@ -213,7 +244,7 @@ class Connect4State(State):
         cloned_state.__has_winner = self.__has_winner
         for row in range(0, self.__num_rows):
             for col in range(0, self.__num_cols):
-                cloned_state.__grid[row][col] = self.__grid[row][col]
+                cloned_state.__grid[row][col] = self.__grid[row][col]      
         return cloned_state
 
     def get_result(self, pos) -> Optional[Connect4Result]:
