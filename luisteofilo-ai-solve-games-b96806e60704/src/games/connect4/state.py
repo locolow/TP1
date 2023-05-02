@@ -63,7 +63,8 @@ class Connect4State(State):
             [IC, IC, EC, IC, EC, IC, EC, IC, IC]
         ]
        
-        self.__pieces = Connect4State.NORMAL_PIECES
+        self.__pieces = Connect4State.NORMAL_PIECES.copy()
+       
 
         """
         counts the number of turns in the current game
