@@ -11,25 +11,48 @@ class Connect4State(State):
     def my_shuffle(array):
         random.shuffle(array)
         return array
-
-    INVALID_CELL = -1
-    EMPTY_CELL = 0
+    EC = 0
+    IC = -1
     PLAYED_CELL= -2
     BLUE = 1
     BLACK = 2
     GREEN = 3
     RED = 4
-    WHITE = 6
-    SPECIAL = 7
-    NORMAL_PIECES = [
-            Piece('BL'), Piece('BL'), Piece('BL'), Piece('BL'), Piece('BL'), Piece('BL'), Piece('BL'), Piece('BL'),
-            Piece('BK'), Piece('BK'), Piece('BK'), Piece('BK'), Piece('BK'), Piece('BK'), Piece('BK'), Piece('BK'),
-            Piece('GR'), Piece('GR'), Piece('GR'), Piece('GR'), Piece('GR'), Piece('GR'), Piece('GR'), Piece('GR'),
-            Piece('RE'), Piece('RE'), Piece('RE'), Piece('RE'), Piece('RE'), Piece('RE'), Piece('RE'), Piece('RE'),
-            Piece('WH'), Piece('WH'), Piece('WH'), Piece('WH'), Piece('WH'), Piece('WH'), Piece('WH'), Piece('WH'),
-            Piece('SP'), Piece('SP'), Piece('SP')
-        ]
+    WHITE = 5
+    SPECIAL = 6
+    #NORMAL_PIECES = [
+    #        Piece(1), Piece(1), Piece(1), Piece(1), Piece(1), Piece(1), Piece(1), Piece(1),
+    #        Piece(2), Piece(2), Piece(2), Piece(2), Piece(2), Piece(2), Piece(2), Piece(2),
+    #        Piece(3), Piece(3), Piece(3), Piece(3), Piece(3), Piece(3), Piece(3), Piece(3),
+    #        Piece(4), Piece(4), Piece(4), Piece(4), Piece(4), Piece(4), Piece(4), Piece(4),
+    #        Piece(5), Piece(5), Piece(5), Piece(5), Piece(5), Piece(5), Piece(5), Piece(5),
+    #        Piece(6), Piece(6), Piece(6)
+    #    ]
+    NORMAL_PIECES = [1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6]          
     my_shuffle(NORMAL_PIECES)
+
+    grid = [ 
+            [IC, IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, IC],
+            [IC, IC, IC, (EC,0), IC, (EC,0), IC, IC, IC],
+            [IC, IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, IC],
+            [IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC],
+            [IC, IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, IC],
+            [IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC],
+            [(EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0)],
+            [IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC],
+            [IC, IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, IC],
+            [IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC],
+            [IC, IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, IC],
+            [IC, IC, IC, (EC,0), IC, (EC,0), IC, IC, IC],
+            [IC, IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, IC]
+        ]
+    num_rows = 13    
+    num_cols = 9
+    for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == (EC,0):
+                    grid[i][j] = (NORMAL_PIECES.pop(0),0)
+
 
     def __init__(self):
         super().__init__()
@@ -42,29 +65,13 @@ class Connect4State(State):
         """
         the grid
         """
-        IC = Connect4State.INVALID_CELL
-        EC = Connect4State.EMPTY_CELL
-    
-        
+        for x in [0,1,2,3,4]:
+            self.__singlePiece = [(1,x),(2,x),(3,x),(4,x),(5,x),(6,x)]
 
-        self.__grid =[ 
-            [IC, IC, EC, IC, EC, IC, EC, IC, IC],
-            [IC, IC, IC, EC, IC, EC, IC, IC, IC],
-            [IC, IC, EC, IC, EC, IC, EC, IC, IC],
-            [IC, EC, IC, EC, IC, EC, IC, EC, IC],
-            [IC, IC, EC, IC, EC, IC, EC, IC, IC],
-            [IC, EC, IC, EC, IC, EC, IC, EC, IC],
-            [EC, IC, EC, IC, EC, IC, EC, IC, EC],
-            [IC, EC, IC, EC, IC, EC, IC, EC, IC],
-            [IC, IC, EC, IC, EC, IC, EC, IC, IC],
-            [IC, EC, IC, EC, IC, EC, IC, EC, IC],
-            [IC, IC, EC, IC, EC, IC, EC, IC, IC],
-            [IC, IC, IC, EC, IC, EC, IC, IC, IC],
-            [IC, IC, EC, IC, EC, IC, EC, IC, IC]
-        ]
-       
-        self.__pieces = Connect4State.NORMAL_PIECES.copy()
-       
+
+        self.__grid = Connect4State.grid
+
+        
 
         """
         counts the number of turns in the current game
@@ -141,58 +148,81 @@ class Connect4State(State):
         return 2
 
     def validate_action(self, action: Connect4Action) -> bool:
-        col = action.get_col()
-        row = action.get_row()
+        colFrom = action.get_colFrom()
+        rowFrom = action.get_rowFrom()
+        colTo = action.get_colTo()
+        rowTo = action.get_rowTo()
 
         # valid column
-        if col < 0 or col >= self.__num_cols:
-            print("maior que col")
-            
+        if colFrom < 0 or colTo < 0 or colFrom >= self.__num_cols or colTo >=self.__num_cols:
+           
             return False
 
-        if row < 0 or row >= self.__num_rows:
-            print("maior que row")
+        if rowFrom < 0 or rowTo < 0 or rowFrom >= self.__num_rows or rowTo >= self.__num_rows:
+          
             return False
 
         # full column
-        if self.__grid[row][col] != Connect4State.EMPTY_CELL:
-            print("not an empty cell")
-            print (self.__grid[row][col])
-            return False
-        #if self.__grid[0][row] != Connect4State.EMPTY_CELL:
-        #    print("ta full row")
-        #    return False
+        #if self.__grid[rowFrom][colFrom] not in self.__singlePiece:
+        
+            #return False
+        #if self.__grid[rowTo][colTo] not in self.__singlePiece:
+            
+        #    return False    
+       
         
         return True
 
     def update(self, action: Connect4Action):
-        col = action.get_col()
-        row = action.get_row()
+        colFrom = action.get_colFrom()
+        rowFrom = action.get_rowFrom()
+        colTo = action.get_colTo()
+        rowTo = action.get_rowTo()
 
+        print(self.__grid[rowFrom][colFrom])
+        print(self.__grid[rowTo][colTo])
         # drop the checker
-        #if self.__grid[row][col] != -1:    
-        #    self.__grid[row][col] = -2
+        if self.__grid[rowFrom][colFrom] in self.__singlePiece:
+            
+            if self.__grid[rowTo][colTo] in self.__singlePiece:
+                print(self.__grid[rowTo][colTo])
+                self.__grid[rowTo][colTo] = (self.__grid([rowFrom][colFrom]), 2) ###AQUI PROF###
+                self.__grid[rowFrom][colFrom] = -2
+                        
+                
+                
         
 
         # determine if there is a winner
-    #    self.__has_winner = self.__check_winner(self.__acting_player)
+        #self.__has_winner = self.__check_winner(self.__acting_player)
 
         # switch to next player
         self.__acting_player = 1 if self.__acting_player == 0 else 0
 
         self.__turns_count += 1
         
+     
     def __display_cell(self, row, col):
         piece = self.__grid[row][col]
-        if piece == 0:
-            print(self.__pieces.pop(), end="")
-            
-            
-        elif piece == -1:
-            print(' ', end="")       
-        elif piece == -2:
-            print('O', end="")
-
+        stack = [0,1,2,3,4]
+        for x in stack:
+            if piece == (1,x):
+                print(f'BL{x}', end="")  
+            if piece == (2,x):
+                print(f'BK{x}', end="")
+            if piece == (3,x):
+                print(f'GR{x}', end="")
+            if piece == (4,x):
+                print(f'RE{x}', end="")
+            if piece == (5,x):
+                print(f'WH{x}', end="")
+            if piece == (6,x):
+                print(f'SP{x}', end="")                  
+            if piece == -1:
+                print(' ', end="")       
+            if piece == -2:
+                print('X', end="")
+        #print(piece,end="")
                             #DISPLAY CELL COM CORES
     #def __display_cell(self, row, col):
     #    piece = self.__grid[row][col]
@@ -221,7 +251,6 @@ class Connect4State(State):
     def display(self):
         for row in range(0, self.__num_rows):
             for col in range(0, self.__num_cols):
-                
                 self.__display_cell(row,col)
                 print('', end="")
             print(" ",row)     
@@ -230,10 +259,12 @@ class Connect4State(State):
         print("")           
 
     def __is_full(self):
-        return self.__turns_count > (self.__num_cols * self.__num_rows)
+        #return self.__turns_count > (self.__num_cols * self.__num_rows)
+        pass
 
     def is_finished(self) -> bool:
-        return self.__has_winner or self.__is_full()
+        #return self.__has_winner or self.__is_full()
+        pass
 
     def get_acting_player(self) -> int:
         return self.__acting_player
