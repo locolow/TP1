@@ -13,7 +13,8 @@ class HumanConnect4Player(Connect4Player):
         while True:
             # noinspection PyBroadException
             try:
-                return Connect4Action(int(input(f"Player {state.get_acting_player()}, choose a column: ")),int(input(f"Player {state.get_acting_player()}, choose a row: ")))
+                return Connect4Action(int(input(f"Player {state.get_acting_player()}, choose the column of the piece you want to move: ")),int(input(f"Player {state.get_acting_player()}, choose the row of the piece you want to move: "))
+                ,int(input(f"Player {state.get_acting_player()}, choose the column where you want to move the piece: ")),int(input(f"Player {state.get_acting_player()}, choose the column where you want to move the piece: ")))
             except Exception:
                 continue
 
