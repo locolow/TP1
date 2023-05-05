@@ -53,6 +53,9 @@ class Connect4State(State):
                 if grid[i][j] == (EC,0):
                     grid[i][j] = (NORMAL_PIECES.pop(0),0)
 
+    available_colors = [1,2,3,4,5]
+    chosen_colors = []
+    
 
     def __init__(self):
         super().__init__()
@@ -71,6 +74,7 @@ class Connect4State(State):
 
         self.__grid = Connect4State.grid
 
+        self.__chosenColors = Connect4State.chosen_colors
         
 
         """
@@ -128,20 +132,7 @@ class Connect4State(State):
     def get_grid(self):
         return self.__grid
 
-    #def place_random_pieces(self):
-    #    colors = [Connect4State.BLUE, Connect4State.BLACK, Connect4State.GREEN, Connect4State.RED, Connect4State.WHITE, Connect4State.SPECIAL]
-    #    counts = {color: 0 for color in colors}
-
-        # place up to 5 pieces of each color and 3 of the special ones
-    #    while any(count < 5 for count in counts.values()) or counts[Connect4State.SPECIAL] < 3:
-    #        row = random.randint(0, self.__num_rows-1)
-    #        col = random.randint(0, self.__num_cols-1)
-    #        color = random.choice(colors)
-
-    #        if counts[color] < 5 or color == Connect4State.SPECIAL and counts[Connect4State.SPECIAL] < 3:
-    #            self.__grid[row][col] = color
-    #            counts[color] += 1
-
+ 
 
 
     def get_num_players(self):
@@ -179,15 +170,17 @@ class Connect4State(State):
         colTo = action.get_colTo()
         rowTo = action.get_rowTo()
 
-        print(self.__grid[rowFrom][colFrom])
-        print(self.__grid[rowTo][colTo])
-        # drop the checker
-        if self.__grid[rowFrom][colFrom] in self.__singlePiece:
+        if isinstance(self.__grid[rowFrom][colFrom], tuple) and isinstance(self.__grid[rowTo][colTo], tuple):
+            ecFrom, heightFrom = self.__grid[rowFrom][colFrom]
+            ecTo, heightTo = self.__grid[rowTo][colTo]
             
-            if self.__grid[rowTo][colTo] in self.__singlePiece:
-                print(self.__grid[rowTo][colTo])
-                self.__grid[rowTo][colTo] = (self.__grid([rowFrom][colFrom]), 2) ###AQUI PROF###
+            if ecFrom != ecTo:
+                # move is between two different ECs
+                # move is valid and height of stack can be increased
+                self.__grid[rowTo][colTo] = (ecFrom, heightTo + 1)
                 self.__grid[rowFrom][colFrom] = -2
+            #self.__grid[rowTo][colTo] = (self.__grid([rowFrom][colFrom]), 2) ###AQUI PROF###
+        
                         
                 
                 
@@ -218,10 +211,10 @@ class Connect4State(State):
                 print(f'WH{x}', end="")
             if piece == (6,x):
                 print(f'SP{x}', end="")                  
-            if piece == -1:
-                print(' ', end="")       
-            if piece == -2:
-                print('X', end="")
+        if piece == -1:
+            print(' ', end="")       
+        if piece == -2:
+            print('X', end="")
         #print(piece,end="")
                             #DISPLAY CELL COM CORES
     #def __display_cell(self, row, col):

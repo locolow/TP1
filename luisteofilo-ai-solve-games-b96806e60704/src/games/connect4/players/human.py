@@ -8,8 +8,27 @@ class HumanConnect4Player(Connect4Player):
     def __init__(self, name):
         super().__init__(name)
 
+
+    def get_colours(self, state: Connect4State):
+        state.display()
+        while len(state.chosen_colors) < 4:
+            wantTo = input("wanna pick a color?\n")
+            wantTo = wantTo.upper()
+            if wantTo == 'Y':
+                print(state.available_colors)
+                chosen = input("Choose a color:\n")
+                chosen = int(chosen)
+                state.chosen_colors.append(chosen)
+                state.available_colors.remove(chosen)
+                break
+            elif wantTo == 'N':
+                break    
+            else:
+                print("Just Y or N pls")
     def get_action(self, state: Connect4State):
         state.display()
+        #state.choose_colors(self,Connect4Action)
+        #state.choose_colors(self)
         while True:
             # noinspection PyBroadException
             try:

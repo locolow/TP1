@@ -10,6 +10,7 @@ class Connect4Action:
         self.__rowFrom = rowFrom
         self.__colTo = colTo
         self.__rowTo = rowTo
+        
 
     def get_colFrom(self):
         return self.__colFrom
@@ -21,4 +22,5 @@ class Connect4Action:
         return self.__colTo
 
     def get_rowTo(self):
-        return self.__rowTo        
+        return self.__rowTo
+        

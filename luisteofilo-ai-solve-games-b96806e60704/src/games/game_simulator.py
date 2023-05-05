@@ -107,7 +107,7 @@ class GameSimulator(ABC):
         while not state.is_finished():
             selected_action = None
             pos = state.get_acting_player()
-
+            players[pos].get_colours(state.clone())
             # obtain a valid action
             while True:
                 selected_action = players[pos].get_action(state.clone())
