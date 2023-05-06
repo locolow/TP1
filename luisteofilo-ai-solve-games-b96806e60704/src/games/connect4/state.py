@@ -146,22 +146,62 @@ class Connect4State(State):
 
         # valid column
         if colFrom < 0 or colTo < 0 or colFrom >= self.__num_cols or colTo >=self.__num_cols:
-           
+            if self.__acting_player == 1:
+                print("Less than 0 or Bigger than col")
             return False
+             
 
         if rowFrom < 0 or rowTo < 0 or rowFrom >= self.__num_rows or rowTo >= self.__num_rows:
-          
+            if self.__acting_player == 1:
+                print("Less than 0 or Bigger than rows")
             return False
 
         # full column
-        #if self.__grid[rowFrom][colFrom] not in self.__singlePiece:
+        if self.__grid[rowFrom][colFrom] == self.__grid[rowTo][colTo]:
+            if self.__acting_player == 1:
+                print("Can't have a piece of the same color on top of each other")
+            return False
         
-            #return False
-        #if self.__grid[rowTo][colTo] not in self.__singlePiece:
-            
-        #    return False    
+        if self.__grid[rowFrom][colFrom] == Connect4State.IC or self.grid[rowTo][colTo] == Connect4State.IC:
+            if self.__acting_player == 1:
+                print("Move the piece to a place where there are pieces")
+            return False
+
        
-        
+        if abs(rowFrom - rowTo) > 1:
+            if self.__acting_player == 1:
+                print("You can only move on top of adjacent pieces 1 !")
+            return False
+
+        if abs(rowFrom - rowTo) == 0:
+            if abs(colFrom - colTo) > 2:
+                if self.__acting_player == 1:
+                    print("You can only move on top of adjacent pieces 2 !")
+                return False    
+
+        if self.__grid[rowTo][colTo] == Connect4State.PLAYED_CELL:
+            if rowFrom < rowTo:
+                # move made from above, check nearest empty cell below
+                for i in range(rowTo+1, self.__num_rows): ##PEGAS NISTO E FAZES FOR RANGE DAS ROWS ANDA UMA PARA BAIXO ATÉ ENCONTRAR UMA EC
+                    if self.__grid[i][colTo + 1] == Connect4State.EC or self.__grid[i][colTo - 1] == Connect4State.EC:
+                        return True
+                    elif i == self.__num_rows-1:
+                        if self.__acting_player == 1:    
+                            print("No pieces below that to be played")
+                        return False
+
+            elif rowFrom > rowTo:
+                # move made from below, check nearest empty cell above
+                for i in range(rowTo-1, -1, -1):
+                    if self.__grid[i][colTo + 1] == Connect4State.EC or self.__grid[i][colTo -1 ] == Connect4State.EC:
+                        return True
+                    elif i == 0:
+                        if self.__acting_player == 1:    
+                            print("No pieces above that to be played") 
+                        return False
+            
+        print(f"Col From: {colFrom} Row From:{rowFrom}")
+        print(f"Col To: {colTo} Row To: {rowTo}")
         return True
 
     def update(self, action: Connect4Action):
