@@ -13,11 +13,11 @@ class RandomConnect4Player(Connect4Player):
 
     def get_colours(self, state: Connect4State):
         state.display()
-        while len(state.chosen_colors) < 4:
+        while len(state.available_colors) > 1:
             print(state.available_colors)
             chosen = random.choice(state.available_colors)
             chosen = int(chosen)
-            state.chosen_colors.append(chosen)
+            state.chosen_colors_player_0.append(chosen)
             state.available_colors.remove(chosen)
             break
 

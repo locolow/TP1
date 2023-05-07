@@ -20,14 +20,13 @@ class Connect4State(State):
     RED = 4
     WHITE = 5
     SPECIAL = 6
-    #NORMAL_PIECES = [
-    #        Piece(1), Piece(1), Piece(1), Piece(1), Piece(1), Piece(1), Piece(1), Piece(1),
-    #        Piece(2), Piece(2), Piece(2), Piece(2), Piece(2), Piece(2), Piece(2), Piece(2),
-    #        Piece(3), Piece(3), Piece(3), Piece(3), Piece(3), Piece(3), Piece(3), Piece(3),
-    #        Piece(4), Piece(4), Piece(4), Piece(4), Piece(4), Piece(4), Piece(4), Piece(4),
-    #        Piece(5), Piece(5), Piece(5), Piece(5), Piece(5), Piece(5), Piece(5), Piece(5),
-    #        Piece(6), Piece(6), Piece(6)
-    #    ]
+    color_map = {
+    BLUE: 'blue',
+    BLACK: 'black',
+    GREEN: 'green',
+    RED: 'red',
+    WHITE: 'white'
+    }
     NORMAL_PIECES = [1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6]          
     my_shuffle(NORMAL_PIECES)
 
@@ -54,8 +53,12 @@ class Connect4State(State):
                     grid[i][j] = (NORMAL_PIECES.pop(0),0)
 
     available_colors = [1,2,3,4,5]
-    chosen_colors = []
-    
+    chosen_colors_player_0 = []
+    chosen_colors_player_1 = []
+    possibleTuples = []
+    for i in range(1,7):
+            for j in range(5):
+                possibleTuples.append((i,j))
 
     def __init__(self):
         super().__init__()
@@ -68,14 +71,13 @@ class Connect4State(State):
         """
         the grid
         """
-        for x in [0,1,2,3,4]:
-            self.__singlePiece = [(1,x),(2,x),(3,x),(4,x),(5,x),(6,x)]
 
 
         self.__grid = Connect4State.grid
 
-        self.__chosenColors = Connect4State.chosen_colors
-        
+        self.__chosenColors_player_0 = [Connect4State.color_map[color] for color in Connect4State.chosen_colors_player_0]
+        self.__chosenColors_player_1 = [Connect4State.color_map[color] for color in Connect4State.chosen_colors_player_1]
+
 
         """
         counts the number of turns in the current game
@@ -86,6 +88,7 @@ class Connect4State(State):
         the index of the current acting player
         """
         self.__acting_player = 0
+        self.__notActing_player = 1
 
         """
         determine if a winner was found already 
@@ -133,7 +136,7 @@ class Connect4State(State):
         return self.__grid
 
  
-
+    #def checkIfEC()
 
     def get_num_players(self):
         return 2
@@ -179,29 +182,28 @@ class Connect4State(State):
                     print("You can only move on top of adjacent pieces 2 !")
                 return False    
 
-        if self.__grid[rowTo][colTo] == Connect4State.PLAYED_CELL:
-            if rowFrom < rowTo:
+        #if self.__grid[rowTo][colTo] == Connect4State.PLAYED_CELL:
+        #    if rowFrom < rowTo:
                 # move made from above, check nearest empty cell below
-                for i in range(rowTo+1, self.__num_rows): ##PEGAS NISTO E FAZES FOR RANGE DAS ROWS ANDA UMA PARA BAIXO ATÉ ENCONTRAR UMA EC
-                    if self.__grid[i][colTo + 1] == Connect4State.EC or self.__grid[i][colTo - 1] == Connect4State.EC:
-                        return True
-                    elif i == self.__num_rows-1:
-                        if self.__acting_player == 1:    
-                            print("No pieces below that to be played")
-                        return False
+        #        for i in range(rowTo+1, self.__num_rows): ##PEGAS NISTO E FAZES FOR RANGE DAS ROWS ANDA UMA PARA BAIXO ATÉ ENCONTRAR UMA EC
+        #            if self.__grid[i][colTo] == -1:
+        #                print(f"ENcontrou ! {self.__grid[i][colTo]}")
+        #                break
+        #            else:    
+        #                colTo = colTo + 1
+        #                print(self.__grid[i][colTo])
 
-            elif rowFrom > rowTo:
+        #    elif rowFrom > rowTo:
                 # move made from below, check nearest empty cell above
-                for i in range(rowTo-1, -1, -1):
-                    if self.__grid[i][colTo + 1] == Connect4State.EC or self.__grid[i][colTo -1 ] == Connect4State.EC:
-                        return True
-                    elif i == 0:
-                        if self.__acting_player == 1:    
-                            print("No pieces above that to be played") 
-                        return False
+        #        for i in range(rowTo-1, -1, -1):
+        #            if self.__grid[i][colTo + 1] == Connect4State.EC or self.__grid[i][colTo -1 ] == Connect4State.EC:
+        #                return True
+        #            elif i == 0:
+        #                if self.__acting_player == 1:    
+        #                    print("No pieces above that to be played") 
+        #                return False
             
-        print(f"Col From: {colFrom} Row From:{rowFrom}")
-        print(f"Col To: {colTo} Row To: {rowTo}")
+       
         return True
 
     def update(self, action: Connect4Action):
@@ -210,22 +212,53 @@ class Connect4State(State):
         colTo = action.get_colTo()
         rowTo = action.get_rowTo()
 
-        if isinstance(self.__grid[rowFrom][colFrom], tuple) and isinstance(self.__grid[rowTo][colTo], tuple):
-            ecFrom, heightFrom = self.__grid[rowFrom][colFrom]
-            ecTo, heightTo = self.__grid[rowTo][colTo]
-            
-            if ecFrom != ecTo:
-                # move is between two different ECs
-                # move is valid and height of stack can be increased
+        if self.__grid[rowTo][colTo] != -2:
+            if isinstance(self.__grid[rowFrom][colFrom], tuple) and isinstance(self.__grid[rowTo][colTo], tuple):
+                ecFrom, heightFrom = self.__grid[rowFrom][colFrom]
+                ecTo, heightTo = self.__grid[rowTo][colTo]
+                
                 self.__grid[rowTo][colTo] = (ecFrom, heightTo + 1)
                 self.__grid[rowFrom][colFrom] = -2
+        
+        if self.__grid[rowTo][colTo] == -2:
+            if rowFrom < rowTo:
+                for i in range(rowTo + 1, self.__num_rows):
+                    for x in range(0,self.__num_cols):
+                        if (self.__grid[i][x]) != -1:
+                            if (self.__grid[i][x]) != -2:
+                               
+                              
+                                if (self.__grid[i][x]) in Connect4State.possibleTuples:
+                                    
+                                    ecFrom, heightFrom = self.__grid[rowFrom][colFrom]
+                                    ecTo, heightTo = self.__grid[i][x]
+                                    self.__grid[i][x] = (ecFrom, heightTo + 1)
+                                    self.__grid[rowFrom][colFrom] = -2
+                                    break
+                        else:
+                            continue
+                    break                    
+            if rowFrom > rowTo:
+                for i in range(rowTo - 1, self.__num_rows):
+                    for x in range(0,self.__num_cols):
+                        if (self.__grid[i][x]) != -1:
+                            if (self.__grid[i][x]) != -2:
+                              
+                                if (self.__grid[i][x]) in Connect4State.possibleTuples:
+                                   
+                                    ecFrom, heightFrom = self.__grid[rowFrom][colFrom]
+                                    ecTo, heightTo = self.__grid[i][x]
+                                    self.__grid[i][x] = (ecFrom, heightTo + 1)
+                                    self.__grid[rowFrom][colFrom] = -2
+                                    break
+                        else:
+                            continue
+                    break        
+            
+            
+            
             #self.__grid[rowTo][colTo] = (self.__grid([rowFrom][colFrom]), 2) ###AQUI PROF###
-        
-                        
-                
-                
-        
-
+   
         # determine if there is a winner
         #self.__has_winner = self.__check_winner(self.__acting_player)
 
@@ -269,17 +302,7 @@ class Connect4State(State):
     #    elif piece == -1:
     #        print(' ', end="")
 
-    def __display_numbers(self):
-        for col in range(0, self.__num_cols):
-            if col < 10:
-                print(' ', end="")
-            print(col, end="")
-        print("")
 
-    def __display_separator(self):
-        for col in range(0, self.__num_cols):
-            print("--", end="")
-        print("-")
 
     def display(self):
         for row in range(0, self.__num_rows):
@@ -289,7 +312,7 @@ class Connect4State(State):
             print(" ",row)     
             
             print(" ")
-        print("")           
+        print("")        
 
     def __is_full(self):
         #return self.__turns_count > (self.__num_cols * self.__num_rows)
@@ -301,6 +324,11 @@ class Connect4State(State):
 
     def get_acting_player(self) -> int:
         return self.__acting_player
+
+    def get_not_acting_player(self) -> int:
+        return self.__notActing_player
+
+        
 
     def clone(self):
         cloned_state = Connect4State()
