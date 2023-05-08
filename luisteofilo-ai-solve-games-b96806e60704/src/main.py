@@ -1,6 +1,7 @@
 from games.connect4.players.greedy import GreedyConnect4Player
 from games.connect4.players.minimax import MinimaxConnect4Player
 from games.connect4.players.random import RandomConnect4Player
+from games.connect4.players.random2 import RandomConnect4Player2
 from games.connect4.players.human import HumanConnect4Player
 from games.connect4.simulator import Connect4Simulator
 from games.game_simulator import GameSimulator
@@ -32,8 +33,8 @@ def main():
         
         {
             "name": "LYNGK - Human VS Random",
-            "player1": HumanConnect4Player("Human"),
-            "player2": RandomConnect4Player("Random")
+            "player1": RandomConnect4Player("Random1"),
+            "player2": RandomConnect4Player2("Random2")
         },
         #{
         #    "name": "Connect4 - Random VS Random",

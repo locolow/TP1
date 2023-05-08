@@ -20,13 +20,6 @@ class Connect4State(State):
     RED = 4
     WHITE = 5
     SPECIAL = 6
-    color_map = {
-    BLUE: 'blue',
-    BLACK: 'black',
-    GREEN: 'green',
-    RED: 'red',
-    WHITE: 'white'
-    }
     NORMAL_PIECES = [1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6]          
     my_shuffle(NORMAL_PIECES)
 
@@ -37,7 +30,7 @@ class Connect4State(State):
             [IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC],
             [IC, IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, IC],
             [IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC],
-            [(EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0)],
+            [(EC, 0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0)],
             [IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC],
             [IC, IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, IC],
             [IC, (EC,0), IC, (EC,0), IC, (EC,0), IC, (EC,0), IC],
@@ -55,6 +48,8 @@ class Connect4State(State):
     available_colors = [1,2,3,4,5]
     chosen_colors_player_0 = []
     chosen_colors_player_1 = []
+    score_player_0 = 0
+    score_player_1 = 0
     possibleTuples = []
     for i in range(1,7):
             for j in range(5):
@@ -75,8 +70,6 @@ class Connect4State(State):
 
         self.__grid = Connect4State.grid
 
-        self.__chosenColors_player_0 = [Connect4State.color_map[color] for color in Connect4State.chosen_colors_player_0]
-        self.__chosenColors_player_1 = [Connect4State.color_map[color] for color in Connect4State.chosen_colors_player_1]
 
 
         """
@@ -96,39 +89,9 @@ class Connect4State(State):
         self.__has_winner = False
 
 
-    def __check_winner(self, player):
-        # check for 3 across
-        #count consecutive tree (conta numeros de 3 consecutivos)
-        #for row in range(0, self.__num_rows):
-        #    for col in range(0, self.__num_cols - 2):
-        #        if self.__grid[row][col] == player and \
-        #                self.__grid[row][col + 1] == player and \
-        #                self.__grid[row][col + 2] == player:
-        #            return True
-
-        # check for 4 up and down
-        #for row in range(0, self.__num_rows - 2):
-        #    for col in range(0, self.__num_cols):
-        #        if self.__grid[row][col] == player and \
-        #                self.__grid[row + 1][col] == player and \
-        #                self.__grid[row + 2][col] == player:
-        #            return True
-
-        # check upward diagonal
-        #for row in range(3, self.__num_rows):
-        #    for col in range(0, self.__num_cols - 2):
-        #        if self.__grid[row][col] == player and \
-        #                self.__grid[row - 1][col + 1] == player and \
-        #                self.__grid[row - 2][col + 2] == player:
-        #            return True
-
-        # check downward diagonal
-        #for row in range(0, self.__num_rows - 2):
-        #    for col in range(0, self.__num_cols - 2):
-        #        if self.__grid[row][col] == player and \
-        #                self.__grid[row + 1][col + 1] == player and \
-        #                self.__grid[row + 2][col + 2] == player:
-        #            return True
+    def __check_winner(self):
+        if self.is_game_over():
+            return True
 
         return False
 
@@ -141,6 +104,20 @@ class Connect4State(State):
     def get_num_players(self):
         return 2
 
+    #FUNÇÃO PARA VER SE A PILHA TEM 5 PEÇAS e update no score
+    def check_stack(self):
+        for i, row in enumerate(self.__grid):
+            for j, element in enumerate(row):
+                if isinstance(element, tuple) and element[1] >= 5:
+                    if self.__acting_player == 0:
+                        Connect4State.score_player_0 += 1
+                        print(f"Score inside player 0: {Connect4State.score_player_0}")
+                    elif self.__acting_player == 1:
+                        Connect4State.score_player_1 += 1
+                        print(f"Score inside player 1: {Connect4State.score_player_1}")
+                    self.__grid[i][j] = -2
+
+        ##                        VALIDAÇÕES                        ##
     def validate_action(self, action: Connect4Action) -> bool:
         colFrom = action.get_colFrom()
         rowFrom = action.get_rowFrom()
@@ -149,62 +126,70 @@ class Connect4State(State):
 
         # valid column
         if colFrom < 0 or colTo < 0 or colFrom >= self.__num_cols or colTo >=self.__num_cols:
-            if self.__acting_player == 1:
+            if self.__acting_player == 2:
                 print("Less than 0 or Bigger than col")
             return False
              
-
+        # valid row
         if rowFrom < 0 or rowTo < 0 or rowFrom >= self.__num_rows or rowTo >= self.__num_rows:
-            if self.__acting_player == 1:
+            if self.__acting_player == 2:
                 print("Less than 0 or Bigger than rows")
             return False
 
-        # full column
+        # same piece moving
         if self.__grid[rowFrom][colFrom] == self.__grid[rowTo][colTo]:
-            if self.__acting_player == 1:
+            if self.__acting_player == 2:
                 print("Can't have a piece of the same color on top of each other")
             return False
         
-        if self.__grid[rowFrom][colFrom] == Connect4State.IC or self.grid[rowTo][colTo] == Connect4State.IC:
-            if self.__acting_player == 1:
+        # moving an opponents color piece
+        if self.__acting_player == 0:
+            if isinstance(self.__grid[rowFrom][colFrom], tuple):
+                if (self.__grid[rowFrom][colFrom][0]) in Connect4State.chosen_colors_player_1:
+                    return False
+
+        if self.__acting_player == 1:
+            if isinstance(self.__grid[rowFrom][colFrom], tuple):
+                if (self.__grid[rowFrom][colFrom][0]) in Connect4State.chosen_colors_player_0:
+                   if self.__acting_player == 2:
+                        print("Cant move a piece of the opponents color")
+                        return False 
+
+        if self.__grid[rowFrom][colFrom] == -1 or self.grid[rowTo][colTo] == -1:
+            if self.__acting_player == 2:
                 print("Move the piece to a place where there are pieces")
             return False
 
        
         if abs(rowFrom - rowTo) > 1:
-            if self.__acting_player == 1:
+            if self.__acting_player == 2:
                 print("You can only move on top of adjacent pieces 1 !")
             return False
 
         if abs(rowFrom - rowTo) == 0:
             if abs(colFrom - colTo) > 2:
-                if self.__acting_player == 1:
+                if self.__acting_player == 2:
                     print("You can only move on top of adjacent pieces 2 !")
                 return False    
-
-        #if self.__grid[rowTo][colTo] == Connect4State.PLAYED_CELL:
-        #    if rowFrom < rowTo:
-                # move made from above, check nearest empty cell below
-        #        for i in range(rowTo+1, self.__num_rows): ##PEGAS NISTO E FAZES FOR RANGE DAS ROWS ANDA UMA PARA BAIXO ATÉ ENCONTRAR UMA EC
-        #            if self.__grid[i][colTo] == -1:
-        #                print(f"ENcontrou ! {self.__grid[i][colTo]}")
-        #                break
-        #            else:    
-        #                colTo = colTo + 1
-        #                print(self.__grid[i][colTo])
-
-        #    elif rowFrom > rowTo:
-                # move made from below, check nearest empty cell above
-        #        for i in range(rowTo-1, -1, -1):
-        #            if self.__grid[i][colTo + 1] == Connect4State.EC or self.__grid[i][colTo -1 ] == Connect4State.EC:
-        #                return True
-        #            elif i == 0:
-        #                if self.__acting_player == 1:    
-        #                    print("No pieces above that to be played") 
-        #                return False
             
-       
+        if isinstance(self.__grid[rowFrom][colFrom], tuple):
+            if (self.__grid[rowFrom][colFrom][0]) > 1:
+                if self.__acting_player == 2:
+                    print("cant move a stack")
+                    return False
+
         return True
+
+    #GAME OVER#
+    def is_game_over(self) -> bool:
+        num_remaining_pieces = 0
+        for row in range(self.__num_rows):
+            for col in range(self.__num_cols):
+                if self.__grid[row][col] != -1 and self.__grid[row][col] != -2:
+                    num_remaining_pieces += 1
+        if num_remaining_pieces <= 5:
+            return True
+
 
     def update(self, action: Connect4Action):
         colFrom = action.get_colFrom()
@@ -257,11 +242,17 @@ class Connect4State(State):
             
             
             
+            
             #self.__grid[rowTo][colTo] = (self.__grid([rowFrom][colFrom]), 2) ###AQUI PROF###
    
         # determine if there is a winner
-        #self.__has_winner = self.__check_winner(self.__acting_player)
+        self.__has_winner = self.__check_winner()
 
+        #Check if there are 5 piece stack
+        self.check_stack()
+
+        #check if there are move valid moves
+        self.is_game_over()
         # switch to next player
         self.__acting_player = 1 if self.__acting_player == 0 else 0
 
@@ -271,6 +262,7 @@ class Connect4State(State):
     def __display_cell(self, row, col):
         piece = self.__grid[row][col]
         stack = [0,1,2,3,4]
+        this_pieces = [1,2,3,4,5,6]
         for x in stack:
             if piece == (1,x):
                 print(f'BL{x}', end="")  
@@ -284,6 +276,9 @@ class Connect4State(State):
                 print(f'WH{x}', end="")
             if piece == (6,x):
                 print(f'SP{x}', end="")                  
+        for y in this_pieces:
+            if piece == (y,5):
+                print('X',end="")
         if piece == -1:
             print(' ', end="")       
         if piece == -2:
@@ -319,8 +314,8 @@ class Connect4State(State):
         pass
 
     def is_finished(self) -> bool:
-        #return self.__has_winner or self.__is_full()
-        pass
+        return self.is_game_over()
+        
 
     def get_acting_player(self) -> int:
         return self.__acting_player
@@ -340,11 +335,20 @@ class Connect4State(State):
                 cloned_state.__grid[row][col] = self.__grid[row][col]      
         return cloned_state
 
-    def get_result(self, pos) -> Optional[Connect4Result]:
+    def get_result(self) -> Optional[Connect4Result]:
         if self.__has_winner:
-            return Connect4Result.LOOSE if pos == self.__acting_player else Connect4Result.WIN
-        if self.__is_full():
-            return Connect4Result.DRAW
+            if self.score_player_0 > self.score_player_1:
+                print("este")
+                return Connect4Result.LOOSE
+            elif self.score_player_1 > self.score_player_0:
+                print("Este2")
+                return Connect4Result.WIN
+            else:
+                print("draw")
+                return Connect4Result.DRAW        
+            #return Connect4Result.LOOSE if pos == self.__acting_player else Connect4Result.WIN
+        #if self.__is_full():
+        #    return Connect4Result.DRAW
         return None
 
     def get_num_rows(self):

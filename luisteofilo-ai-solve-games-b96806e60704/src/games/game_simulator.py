@@ -126,7 +126,7 @@ class GameSimulator(ABC):
         # notify all players of the result each player got
         for player in players:
             for pos in range(0, len(players)):
-                player.event_result(pos, state.get_result(pos))
+                player.event_result(state.get_result())
             player.event_end_game(state.clone())
 
         # handler to run after a game ends

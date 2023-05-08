@@ -2,7 +2,7 @@ from abc import ABC
 
 from games.connect4.result import Connect4Result
 from games.player import Player
-
+from games.connect4.state import Connect4State
 
 class Connect4Player(Player, ABC):
 
@@ -30,6 +30,6 @@ class Connect4Player(Player, ABC):
     def event_new_game(self):
         self.__num_games += 1
 
-    def event_result(self, pos: int, result: Connect4Result):
-        if pos == self.get_current_pos():
+    def event_result(self, result: Connect4Result):
+        if Connect4State.score_player_1 > Connect4State.score_player_0:
             self.__stats[result] += 1

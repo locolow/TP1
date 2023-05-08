@@ -6,7 +6,7 @@ from games.connect4.state import Connect4State
 from games.state import State
 
 
-class RandomConnect4Player(Connect4Player):
+class RandomConnect4Player2(Connect4Player):
 
     def __init__(self, name):
         super().__init__(name)
@@ -18,10 +18,10 @@ class RandomConnect4Player(Connect4Player):
     def get_colours(self, state: Connect4State):
         
         
-        while len(state.chosen_colors_player_0) < 2:
+        while len(state.chosen_colors_player_1) < 2:
             chosen = random.choice(state.available_colors)
             chosen = int(chosen)
-            state.chosen_colors_player_0.append(chosen)
+            state.chosen_colors_player_1.append(chosen)
             state.available_colors.remove(chosen)
             break
 
