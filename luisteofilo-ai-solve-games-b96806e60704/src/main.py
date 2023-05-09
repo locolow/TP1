@@ -3,6 +3,8 @@ from games.connect4.players.minimax import MinimaxConnect4Player
 from games.connect4.players.random import RandomConnect4Player
 from games.connect4.players.random2 import RandomConnect4Player2
 from games.connect4.players.human import HumanConnect4Player
+from games.connect4.players.human2 import HumanConnect4Player2
+from games.connect4.players.mymini import MyminiConnect4Player
 from games.connect4.simulator import Connect4Simulator
 from games.game_simulator import GameSimulator
 from games.poker.players.always_bet import AlwaysBetKuhnPokerPlayer
@@ -31,31 +33,31 @@ def main():
 
     c4_simulations = [
         
+        #{
+        #    "name": "LYNGK - Human VS FakeMiniMax",
+        #    "player1": HumanConnect4Player("Human 1 "),
+        #    "player2": MyminiConnect4Player("FakeMiniMax")
+        #},
+        #{
+        #    "name": "LYNGK - Human VS Random",
+        #    "player1": HumanConnect4Player("Human 1"),
+        #    "player2": RandomConnect4Player("Random 1")
+        #},
+        #{
+        #    "name": "LYNGK - Random VS FakeMiniMax",
+        #    "player1": RandomConnect4Player2("Random 2"),
+        #    "player2": MyminiConnect4Player("FakeMiniMax")
+        #},
+        #{
+        #    "name": "LYNGK - Random VS Random",
+        #    "player1": RandomConnect4Player2("Random 2"),
+        #    "player2": RandomConnect4Player("Random 1 ")
+        #},
         {
-            "name": "LYNGK - Human VS Random",
-            "player1": RandomConnect4Player("Random1"),
-            "player2": RandomConnect4Player2("Random2")
-        },
-        #{
-        #    "name": "Connect4 - Random VS Random",
-        #    "player1": RandomConnect4Player("Random 1"),
-        #    "player2": RandomConnect4Player("Random 2")
-        #},
-        #{
-        #    "name": "Connect4 - Greedy VS Random",
-        #    "player1": GreedyConnect4Player("Greedy"),
-        #    "player2": RandomConnect4Player("Random")
-        #},
-        #{
-        #    "name": "Minimax VS Random",
-        #    "player1": MinimaxConnect4Player("Minimax"),
-        #    "player2": RandomConnect4Player("Random")
-        #},
-        #{
-        #    "name": "Minimax VS Greedy",
-        #    "player1": MinimaxConnect4Player("Minimax"),
-        #    "player2": GreedyConnect4Player("Greedy")
-        #}
+            "name": "Human VS Human",
+            "player1": HumanConnect4Player("Human 1"),
+            "player2": HumanConnect4Player2("Human 2 ")
+        }
     ]
 
     #poker_simulations = [

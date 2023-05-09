@@ -4,7 +4,7 @@ from games.connect4.state import Connect4State
 import os
 
 
-class HumanConnect4Player(Connect4Player):
+class HumanConnect4Player2(Connect4Player):
    
     color_dict = {
             1: 'BLUE',
@@ -18,8 +18,8 @@ class HumanConnect4Player(Connect4Player):
         super().__init__(name)
 
     def show_colors(self, state: Connect4State):
-        colors_0 = [HumanConnect4Player.color_dict[num] for num in state.chosen_colors_player_0]
-        colors_1 = [HumanConnect4Player.color_dict[num] for num in state.chosen_colors_player_1]
+        colors_0 = [HumanConnect4Player2.color_dict[num] for num in state.chosen_colors_player_0]
+        colors_1 = [HumanConnect4Player2.color_dict[num] for num in state.chosen_colors_player_1]
         print(f"Chosen colors by opponent: {colors_0}")
         print(f"Chosen colors by you: {colors_1}")
 
@@ -32,7 +32,7 @@ class HumanConnect4Player(Connect4Player):
         state.display()
         self.show_score(state)
         self.show_colors(state)
-        while len(state.chosen_colors_player_1) < 2:
+        while len(state.chosen_colors_player_0) < 2:
             wantTo = input("wanna pick a color?\n")
             wantTo = wantTo.upper()
             if wantTo == 'Y':
@@ -46,7 +46,7 @@ class HumanConnect4Player(Connect4Player):
                     print(f"Available Colors:{state.available_colors}\n1-BLUE\n2-BLACK\n3-GREEN\n4-RED\n5-WHITE\n:")
                     chosen = input("Choose a color:\n")
                     chosen = int(chosen)   
-                state.chosen_colors_player_1.append(chosen)
+                state.chosen_colors_player_0.append(chosen)
                 state.available_colors.remove(chosen)
                 break
             elif wantTo == 'N':

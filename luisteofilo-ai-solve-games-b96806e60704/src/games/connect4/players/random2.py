@@ -16,8 +16,6 @@ class RandomConnect4Player2(Connect4Player):
         print(f"Your Number of piles :{state.score_player_1}")
 
     def get_colours(self, state: Connect4State):
-        
-        
         while len(state.chosen_colors_player_1) < 2:
             chosen = random.choice(state.available_colors)
             chosen = int(chosen)

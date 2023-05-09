@@ -1,5 +1,6 @@
 from typing import Optional
-
+from random import randint
+import random
 from games.connect4.action import Connect4Action
 from games.connect4.result import Connect4Result
 from games.connect4.board import Piece,PieceSet
@@ -89,6 +90,7 @@ class Connect4State(State):
         self.__has_winner = False
 
 
+
     def __check_winner(self):
         if self.is_game_over():
             return True
@@ -104,17 +106,35 @@ class Connect4State(State):
     def get_num_players(self):
         return 2
 
+    def find_move_to_make_5_stack(self):
+        flag = False
+        for i, row in enumerate(self.__grid):
+            for j, element in enumerate(row):
+                if isinstance(element, tuple) and element[1] == 4 and element[0] in Connect4State.chosen_colors_player_1:
+                    while flag == False:
+                        colFrom = randint(0, self.__num_cols)
+                        rowFrom = randint(0, self.__num_rows)
+                        colTo = j
+                        rowTo = i
+                        if self.validate_action(Connect4Action(colFrom,rowFrom,colTo,rowTo)):
+                            flag = True
+                            return(colFrom,rowFrom,colTo,rowTo)
+        return None
+
+
     #FUNÇÃO PARA VER SE A PILHA TEM 5 PEÇAS e update no score
     def check_stack(self):
         for i, row in enumerate(self.__grid):
             for j, element in enumerate(row):
                 if isinstance(element, tuple) and element[1] >= 5:
                     if self.__acting_player == 0:
-                        Connect4State.score_player_0 += 1
-                        print(f"Score inside player 0: {Connect4State.score_player_0}")
+                        if isinstance(element, tuple) and element[0] in Connect4State.chosen_colors_player_0:
+                            Connect4State.score_player_0 += 1
+                            print(f"Score inside player 0: {Connect4State.score_player_0}")
                     elif self.__acting_player == 1:
-                        Connect4State.score_player_1 += 1
-                        print(f"Score inside player 1: {Connect4State.score_player_1}")
+                        if isinstance(element, tuple) and element[0] in Connect4State.chosen_colors_player_1:
+                            Connect4State.score_player_1 += 1
+                            print(f"Score inside player 1: {Connect4State.score_player_1}")
                     self.__grid[i][j] = -2
 
         ##                        VALIDAÇÕES                        ##
@@ -123,7 +143,11 @@ class Connect4State(State):
         rowFrom = action.get_rowFrom()
         colTo = action.get_colTo()
         rowTo = action.get_rowTo()
-
+        
+        #print(f"ColFrom: {colFrom}")
+        #print(f"RowFrom: {rowFrom}")
+        #print(f"ColTo: {colTo}")
+        #print(f"rowTo: {rowTo}")
         # valid column
         if colFrom < 0 or colTo < 0 or colFrom >= self.__num_cols or colTo >=self.__num_cols:
             if self.__acting_player == 2:
@@ -180,6 +204,14 @@ class Connect4State(State):
 
         return True
 
+    def get_num_pieces(self):
+        num_remaining_pieces = 0
+        for row in range(self.__num_rows):
+            for col in range(self.__num_cols):
+                if self.__grid[row][col] != -1 and self.__grid[row][col] != -2:
+                    num_remaining_pieces += 1
+        return num_remaining_pieces
+
     #GAME OVER#
     def is_game_over(self) -> bool:
         num_remaining_pieces = 0
@@ -189,7 +221,8 @@ class Connect4State(State):
                     num_remaining_pieces += 1
         if num_remaining_pieces <= 6:
             return True
-
+        else:
+            return False
 
     def update(self, action: Connect4Action):
         colFrom = action.get_colFrom()
@@ -250,13 +283,14 @@ class Connect4State(State):
 
         #Check if there are 5 piece stack
         self.check_stack()
-
         #check if there are move valid moves
+        
         self.is_game_over()
         # switch to next player
         self.__acting_player = 1 if self.__acting_player == 0 else 0
 
         self.__turns_count += 1
+        
         
      
     def __display_cell(self, row, col):
@@ -283,19 +317,6 @@ class Connect4State(State):
             print(' ', end="")       
         if piece == -2:
             print('X', end="")
-        #print(piece,end="")
-                            #DISPLAY CELL COM CORES
-    #def __display_cell(self, row, col):
-    #    piece = self.__grid[row][col]
-    #    if piece == 0:
-    #        # define a list of your own color codes
-    #        color_palette = ["\033[97m", "\033[92m", "\033[91m", "\033[95m", "\033[30m", "\033[94m"]
-    #        # select a random color code from the color palette
-    #        random_color = random.choice(color_palette)
-    #        # print the "." character in the random color
-    #        print(f"{random_color}.\033[0m", end="")
-    #    elif piece == -1:
-    #        print(' ', end="")
 
 
 
@@ -337,19 +358,17 @@ class Connect4State(State):
 
     def get_result(self, pos) -> Optional[Connect4Result]:
         if self.__has_winner:
+            print(self.display())
             score_0, score_1 = self.score_player_0, self.score_player_1
             if score_0 > score_1:
-                print("Player 0 wins")
+                print("Player 2 wins")
                 return Connect4Result.WIN if pos == 0 else Connect4Result.LOOSE
             elif score_1 > score_0:
                 print("Player 1 wins")
                 return Connect4Result.WIN if pos == 1 else Connect4Result.LOOSE
-            else:
+            elif score_1 == score_0:
                 print("Draw")
                 return Connect4Result.DRAW
-            #return Connect4Result.LOOSE if pos == self.__acting_player else Connect4Result.WIN
-        #if self.__is_full():
-        #    return Connect4Result.DRAW
         return None
 
     def get_num_rows(self):
@@ -362,12 +381,15 @@ class Connect4State(State):
         pass
 
     def get_possible_actions(self):
-        return list(filter(
-            lambda action: self.validate_action(action),
-            map(
-                lambda pos: Connect4Action(pos),
-                range(0, self.get_num_cols()))
-        ))
+        actions = []
+        for colFrom in range(0, self.get_num_cols()):
+            for rowFrom in range(0, self.get_num_rows()):
+                for colTo in range(0, self.get_num_cols()):
+                    for rowTo in range(0, self.get_num_rows()):
+                        action = Connect4Action(colFrom, rowFrom, colTo, rowTo)
+                        if self.validate_action(action):
+                            actions.append(action)
+        return actions
 
     def sim_play(self, action):
         new_state = self.clone()
