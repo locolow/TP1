@@ -187,7 +187,7 @@ class Connect4State(State):
             for col in range(self.__num_cols):
                 if self.__grid[row][col] != -1 and self.__grid[row][col] != -2:
                     num_remaining_pieces += 1
-        if num_remaining_pieces <= 5:
+        if num_remaining_pieces <= 6:
             return True
 
 
@@ -335,17 +335,18 @@ class Connect4State(State):
                 cloned_state.__grid[row][col] = self.__grid[row][col]      
         return cloned_state
 
-    def get_result(self) -> Optional[Connect4Result]:
+    def get_result(self, pos) -> Optional[Connect4Result]:
         if self.__has_winner:
-            if self.score_player_0 > self.score_player_1:
-                print("este")
-                return Connect4Result.LOOSE
-            elif self.score_player_1 > self.score_player_0:
-                print("Este2")
-                return Connect4Result.WIN
+            score_0, score_1 = self.score_player_0, self.score_player_1
+            if score_0 > score_1:
+                print("Player 0 wins")
+                return Connect4Result.WIN if pos == 0 else Connect4Result.LOOSE
+            elif score_1 > score_0:
+                print("Player 1 wins")
+                return Connect4Result.WIN if pos == 1 else Connect4Result.LOOSE
             else:
-                print("draw")
-                return Connect4Result.DRAW        
+                print("Draw")
+                return Connect4Result.DRAW
             #return Connect4Result.LOOSE if pos == self.__acting_player else Connect4Result.WIN
         #if self.__is_full():
         #    return Connect4Result.DRAW
