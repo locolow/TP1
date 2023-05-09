@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 from games.player import Player
 from games.state import State
-from games.connect4.board import Piece,PieceSet
 
 class GameSimulator(ABC):
 

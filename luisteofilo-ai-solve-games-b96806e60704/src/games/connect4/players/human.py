@@ -33,7 +33,7 @@ class HumanConnect4Player(Connect4Player):
         self.show_score(state)
         self.show_colors(state)
         while len(state.chosen_colors_player_1) < 2:
-            wantTo = input("wanna pick a color?\n")
+            wantTo = input("Want to choose a color?\n Y - Yes\n N - No")
             wantTo = wantTo.upper()
             if wantTo == 'Y':
                 print(f"Available Colors:{state.available_colors}\n1-BLUE\n2-BLACK\n3-GREEN\n4-RED\n5-WHITE\n:")
@@ -52,7 +52,7 @@ class HumanConnect4Player(Connect4Player):
             elif wantTo == 'N':
                 break    
             else:
-                print("Just Y or N pls")
+                print("Please enter 'Y' or 'N' only")
     def get_action(self, state: Connect4State):
         self.show_colors(state)
         while True:

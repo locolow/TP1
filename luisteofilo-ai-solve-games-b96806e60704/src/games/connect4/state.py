@@ -3,7 +3,6 @@ from random import randint
 import random
 from games.connect4.action import Connect4Action
 from games.connect4.result import Connect4Result
-from games.connect4.board import Piece,PieceSet
 from games.state import State
 import random
 
@@ -100,8 +99,7 @@ class Connect4State(State):
     def get_grid(self):
         return self.__grid
 
- 
-    #def checkIfEC()
+
 
     def get_num_players(self):
         return 2
@@ -144,10 +142,7 @@ class Connect4State(State):
         colTo = action.get_colTo()
         rowTo = action.get_rowTo()
         
-        #print(f"ColFrom: {colFrom}")
-        #print(f"RowFrom: {rowFrom}")
-        #print(f"ColTo: {colTo}")
-        #print(f"rowTo: {rowTo}")
+
         # valid column
         if colFrom < 0 or colTo < 0 or colFrom >= self.__num_cols or colTo >=self.__num_cols:
             if self.__acting_player == 2:
@@ -172,6 +167,7 @@ class Connect4State(State):
                 if (self.__grid[rowFrom][colFrom][0]) in Connect4State.chosen_colors_player_1:
                     return False
 
+         # moving an opponents color piece
         if self.__acting_player == 1:
             if isinstance(self.__grid[rowFrom][colFrom], tuple):
                 if (self.__grid[rowFrom][colFrom][0]) in Connect4State.chosen_colors_player_0:
@@ -179,50 +175,49 @@ class Connect4State(State):
                         print("Cant move a piece of the opponents color")
                         return False 
 
+        #select invalid cell
         if self.__grid[rowFrom][colFrom] == -1 or self.grid[rowTo][colTo] == -1:
             if self.__acting_player == 2:
                 print("Move the piece to a place where there are pieces")
             return False
 
-       
+        # row above or below only
         if abs(rowFrom - rowTo) > 1:
             if self.__acting_player == 2:
                 print("You can only move on top of adjacent pieces 1 !")
             return False
 
+        # if same row, only adjacent col
         if abs(rowFrom - rowTo) == 0:
             if abs(colFrom - colTo) > 2:
                 if self.__acting_player == 2:
                     print("You can only move on top of adjacent pieces 2 !")
-                return False    
-            
+                return False
+
+        # cant move a stack    
         if isinstance(self.__grid[rowFrom][colFrom], tuple):
-            if (self.__grid[rowFrom][colFrom][0]) > 1:
-                if self.__acting_player == 2:
-                    print("cant move a stack")
-                    return False
+            if (self.__grid[rowFrom][colFrom][1]) > 0:
+                return False
 
         return True
 
-    def get_num_pieces(self):
-        num_remaining_pieces = 0
-        for row in range(self.__num_rows):
-            for col in range(self.__num_cols):
-                if self.__grid[row][col] != -1 and self.__grid[row][col] != -2:
-                    num_remaining_pieces += 1
-        return num_remaining_pieces
-
+        
     #GAME OVER#
     def is_game_over(self) -> bool:
         num_remaining_pieces = 0
+        number_of_stacks = 0
         for row in range(self.__num_rows):
             for col in range(self.__num_cols):
                 if self.__grid[row][col] != -1 and self.__grid[row][col] != -2:
                     num_remaining_pieces += 1
-        if num_remaining_pieces <= 6:
+
+       
+        for i, row in enumerate(self.__grid):
+            for j, element in enumerate(row):
+                if isinstance(element, tuple) and element[1] > 0:
+                    number_of_stacks +=1
+        if (num_remaining_pieces == number_of_stacks):
             return True
-        else:
-            return False
 
     def update(self, action: Connect4Action):
         colFrom = action.get_colFrom()
@@ -272,23 +267,18 @@ class Connect4State(State):
                         else:
                             continue
                     break        
-            
-            
-            
-            
-            #self.__grid[rowTo][colTo] = (self.__grid([rowFrom][colFrom]), 2) ###AQUI PROF###
    
+
         # determine if there is a winner
         self.__has_winner = self.__check_winner()
 
         #Check if there are 5 piece stack
         self.check_stack()
-        #check if there are move valid moves
-        
+        #check if there are move valid moves   
         self.is_game_over()
         # switch to next player
         self.__acting_player = 1 if self.__acting_player == 0 else 0
-
+        self.display()
         self.__turns_count += 1
         
         
@@ -340,10 +330,6 @@ class Connect4State(State):
 
     def get_acting_player(self) -> int:
         return self.__acting_player
-
-    def get_not_acting_player(self) -> int:
-        return self.__notActing_player
-
         
 
     def clone(self):
@@ -389,6 +375,7 @@ class Connect4State(State):
                         action = Connect4Action(colFrom, rowFrom, colTo, rowTo)
                         if self.validate_action(action):
                             actions.append(action)
+                            return actions # Exit the function if a valid action is found
         return actions
 
     def sim_play(self, action):

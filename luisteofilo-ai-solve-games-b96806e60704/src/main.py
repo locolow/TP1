@@ -48,16 +48,16 @@ def main():
         #    "player1": RandomConnect4Player2("Random 2"),
         #    "player2": MyminiConnect4Player("FakeMiniMax")
         #},
-        #{
-        #    "name": "LYNGK - Random VS Random",
-        #    "player1": RandomConnect4Player2("Random 2"),
-        #    "player2": RandomConnect4Player("Random 1 ")
-        #},
         {
-            "name": "Human VS Human",
-            "player1": HumanConnect4Player("Human 1"),
-            "player2": HumanConnect4Player2("Human 2 ")
-        }
+            "name": "LYNGK - Random VS Random",
+            "player1": RandomConnect4Player2("Random 2"),
+            "player2": RandomConnect4Player("Random 1 ")
+        },
+        #{
+        #    "name": "Human VS Human",
+        #    "player1": HumanConnect4Player("Human 1"),
+        #    "player2": HumanConnect4Player2("Human 2 ")
+        #}
     ]
 
     #poker_simulations = [
